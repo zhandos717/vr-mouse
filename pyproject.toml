@@ -1,6 +1,16 @@
 [project]
 name = "vr-mouse"
 version = "0.1.0"
-description = "Add your description here"
+description = "Hand-tracking mouse control via webcam"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "mediapipe>=0.10.14",
+    "opencv-python>=4.9",
+    "pyautogui>=0.9.54",
+    "numpy>=1.26",
+    "vosk>=0.3.45",
+    "sounddevice>=0.4.6",
+]
+
+[tool.setuptools]
+py-modules = ["main", "hand_tracker", "mouse_controller", "face_tracker", "face_mouse_controller", "voice_controller"]
