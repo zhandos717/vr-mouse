@@ -1,9 +1,0 @@
-hand_tracker.py
-main.py
-mouse_controller.py
-pyproject.toml
-vr_mouse.egg-info/PKG-INFO
-vr_mouse.egg-info/SOURCES.txt
-vr_mouse.egg-info/dependency_links.txt
-vr_mouse.egg-info/requires.txt
-vr_mouse.egg-info/top_level.txt

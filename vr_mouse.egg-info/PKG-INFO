@@ -1,9 +1,0 @@
-Metadata-Version: 2.4
-Name: vr-mouse
-Version: 0.1.0
-Summary: Hand-tracking mouse control via webcam
-Requires-Python: >=3.12
-Requires-Dist: mediapipe>=0.10.14
-Requires-Dist: opencv-python>=4.9
-Requires-Dist: pyautogui>=0.9.54
-Requires-Dist: numpy>=1.26

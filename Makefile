@@ -1,4 +1,4 @@
-.PHONY: run debug install clean models face-model vosk-model
+.PHONY: run debug install clean models hand-model face-model vosk-model
 
 install:
 	uv pip install -e .
@@ -12,7 +12,12 @@ debug:
 clean:
 	rm -rf __pycache__ *.egg-info .eggs
 
-models: face-model vosk-model
+models: hand-model face-model vosk-model
+
+hand-model:
+	@[ -f hand_landmarker.task ] || \
+	curl -L -o hand_landmarker.task \
+		"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task"
 
 face-model:
 	@[ -f face_landmarker.task ] || \

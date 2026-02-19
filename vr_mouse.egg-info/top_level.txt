@@ -1,3 +1,0 @@
-hand_tracker
-main
-mouse_controller
