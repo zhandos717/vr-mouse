@@ -1,0 +1,25 @@
+{
+  "version": "1.2.0",
+  "agent": "claude",
+  "skillsDir": ".claude/skills",
+  "installedSkills": [
+    "ai-factory",
+    "architecture",
+    "best-practices",
+    "commit",
+    "deploy",
+    "evolve",
+    "feature",
+    "fix",
+    "implement",
+    "review",
+    "security-checklist",
+    "skill-generator",
+    "task"
+  ],
+  "mcp": {
+    "github": true,
+    "filesystem": true,
+    "postgres": false
+  }
+}
