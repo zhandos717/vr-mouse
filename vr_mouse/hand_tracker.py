@@ -7,15 +7,14 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
-_MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hand_landmarker.task")
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_MODEL_PATH = os.path.join(_PROJECT_ROOT, "hand_landmarker.task")
 
 BaseOptions = mp.tasks.BaseOptions
 HandLandmarker = mp.tasks.vision.HandLandmarker
 HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
-RunningMode = mp.tasks.vision.RunningMode
 HandLandmarksConnections = mp.tasks.vision.HandLandmarksConnections
-draw_landmarks = mp.tasks.vision.drawing_utils.draw_landmarks
-DrawingSpec = mp.tasks.vision.drawing_utils.DrawingSpec
+RunningMode = mp.tasks.vision.RunningMode
 
 
 class HandTracker:
@@ -66,14 +65,12 @@ class HandTracker:
         h, w = frame.shape[:2]
         for hand_landmarks in self._last_result.hand_landmarks:
             connections = HandLandmarksConnections.HAND_CONNECTIONS
-            # Draw connections
             for conn in connections:
                 start = hand_landmarks[conn.start]
                 end = hand_landmarks[conn.end]
                 x1, y1 = int(start.x * w), int(start.y * h)
                 x2, y2 = int(end.x * w), int(end.y * h)
                 cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            # Draw points
             for lm in hand_landmarks:
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)

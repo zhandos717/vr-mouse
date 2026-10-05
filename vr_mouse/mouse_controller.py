@@ -5,9 +5,6 @@ import pyautogui
 
 log = logging.getLogger(__name__)
 
-pyautogui.FAILSAFE = True
-pyautogui.PAUSE = 0
-
 # MediaPipe landmark indices
 WRIST = 0
 THUMB_TIP = 4
@@ -70,7 +67,6 @@ class MouseController:
 
     def _handle_cursor(self, lm: dict[int, tuple[float, float, float]]) -> None:
         tip = lm[INDEX_TIP]
-        # Mirror X for natural control, remap from zone to full range
         raw_x = 1.0 - tip[0]
         raw_y = tip[1]
 

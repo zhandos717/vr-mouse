@@ -6,9 +6,8 @@ import threading
 
 log = logging.getLogger(__name__)
 
-_DEFAULT_MODEL_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "vosk-model-small-en-us-0.15"
-)
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_DEFAULT_MODEL_DIR = os.path.join(_PROJECT_ROOT, "vosk-model-small-en-us-0.15")
 
 # Commands we recognise and their canonical names
 _COMMAND_MAP = {

@@ -4,13 +4,13 @@ install:
 	uv pip install -e .
 
 run:
-	.venv/bin/python main.py
+	.venv/bin/python -m vr_mouse
 
 debug:
-	LOG_LEVEL=DEBUG .venv/bin/python main.py
+	LOG_LEVEL=DEBUG .venv/bin/python -m vr_mouse
 
 clean:
-	rm -rf __pycache__ *.egg-info .eggs
+	rm -rf __pycache__ vr_mouse/__pycache__ *.egg-info .eggs
 
 models: hand-model face-model vosk-model
 

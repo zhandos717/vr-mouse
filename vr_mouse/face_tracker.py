@@ -9,12 +9,23 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
-_MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "face_landmarker.task")
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_MODEL_PATH = os.path.join(_PROJECT_ROOT, "face_landmarker.task")
 
 BaseOptions = mp.tasks.BaseOptions
 FaceLandmarker = mp.tasks.vision.FaceLandmarker
 FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
 RunningMode = mp.tasks.vision.RunningMode
+
+# Face mesh landmark index groups for drawing
+_FACE_OVAL = [
+    10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288,
+    397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136,
+    172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10,
+]
+_LEFT_EYE = [362, 385, 387, 263, 373, 380, 362]
+_RIGHT_EYE = [33, 160, 158, 133, 153, 144, 33]
+_LIPS = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61]
 
 
 @dataclass
@@ -29,11 +40,8 @@ class FaceData:
 
 def _yaw_pitch_from_matrix(matrix: np.ndarray) -> tuple[float, float]:
     """Extract yaw and pitch (degrees) from a 4x4 facial transformation matrix."""
-    # Rotation sub-matrix
     r = matrix[:3, :3]
-    # Yaw = rotation around Y axis
     yaw = math.degrees(math.atan2(r[0, 2], r[2, 2]))
-    # Pitch = rotation around X axis
     pitch = math.degrees(math.asin(-max(-1.0, min(1.0, r[1, 2]))))
     return yaw, pitch
 
@@ -76,7 +84,6 @@ class FaceTracker:
 
         data = FaceData(landmarks=lm_dict)
 
-        # Extract blendshapes
         if self._last_result.face_blendshapes:
             blendshapes = self._last_result.face_blendshapes[0]
             bs_map = {bs.category_name: bs.score for bs in blendshapes}
@@ -84,7 +91,6 @@ class FaceTracker:
             data.blink_right = bs_map.get("eyeBlinkRight", 0.0)
             data.jaw_open = bs_map.get("jawOpen", 0.0)
 
-        # Extract yaw/pitch from transformation matrix
         if self._last_result.facial_transformation_matrixes:
             matrix = self._last_result.facial_transformation_matrixes[0]
             mat = np.array(matrix).reshape(4, 4) if not isinstance(matrix, np.ndarray) else matrix
@@ -104,24 +110,11 @@ class FaceTracker:
         h, w = frame.shape[:2]
         face_landmarks = self._last_result.face_landmarks[0]
 
-        # Face oval indices (MediaPipe face mesh)
-        FACE_OVAL = [
-            10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288,
-            397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136,
-            172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10,
-        ]
-        # Left eye indices
-        LEFT_EYE = [362, 385, 387, 263, 373, 380, 362]
-        # Right eye indices
-        RIGHT_EYE = [33, 160, 158, 133, 153, 144, 33]
-        # Lips outer
-        LIPS = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61]
-
         for indices, color in [
-            (FACE_OVAL, (200, 200, 200)),
-            (LEFT_EYE, (0, 255, 255)),
-            (RIGHT_EYE, (0, 255, 255)),
-            (LIPS, (0, 128, 255)),
+            (_FACE_OVAL, (200, 200, 200)),
+            (_LEFT_EYE, (0, 255, 255)),
+            (_RIGHT_EYE, (0, 255, 255)),
+            (_LIPS, (0, 128, 255)),
         ]:
             pts = []
             for i in indices:

@@ -1,7 +1,7 @@
 [project]
 name = "vr-mouse"
 version = "0.1.0"
-description = "Hand-tracking mouse control via webcam"
+description = "Webcam-based mouse control via hand tracking, face tracking, and voice commands"
 requires-python = ">=3.12"
 dependencies = [
     "mediapipe>=0.10.14",
@@ -12,5 +12,8 @@ dependencies = [
     "sounddevice>=0.4.6",
 ]
 
+[project.scripts]
+vr-mouse = "vr_mouse.__main__:main"
+
 [tool.setuptools]
-py-modules = ["main", "hand_tracker", "mouse_controller", "face_tracker", "face_mouse_controller", "voice_controller"]
+packages = ["vr_mouse"]

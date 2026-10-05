@@ -7,11 +7,14 @@ from enum import Enum
 import cv2
 import pyautogui
 
-from face_mouse_controller import FaceMouseController
-from face_tracker import FaceTracker
-from hand_tracker import HandTracker
-from mouse_controller import MouseController
-from voice_controller import VoiceController
+from vr_mouse.face_mouse_controller import FaceMouseController
+from vr_mouse.face_tracker import FaceTracker
+from vr_mouse.hand_tracker import HandTracker
+from vr_mouse.mouse_controller import MouseController
+from vr_mouse.voice_controller import VoiceController
+
+pyautogui.FAILSAFE = True
+pyautogui.PAUSE = 0
 
 _shutdown = False
 
@@ -26,7 +29,7 @@ def _signal_handler(signum, _frame):
     _shutdown = True
 
 
-def configure_logging() -> None:
+def _configure_logging() -> None:
     level = os.environ.get("LOG_LEVEL", "DEBUG").upper()
     logging.basicConfig(
         level=getattr(logging, level, logging.DEBUG),
@@ -35,7 +38,6 @@ def configure_logging() -> None:
 
 
 def _draw_hud(frame, mode: ControlMode, scroll_mode: bool = False) -> None:
-    """Draw mode indicator overlay on the frame."""
     text = f"Mode: {mode.value}"
     if scroll_mode:
         text += " [SCROLL]"
@@ -49,7 +51,6 @@ def _handle_voice_commands(
     mode: ControlMode,
     log: logging.Logger,
 ) -> ControlMode:
-    """Process voice commands, return (possibly updated) mode."""
     for cmd in commands:
         if cmd == "hand_mode":
             log.info("Voice: switching to HAND mode")
@@ -72,8 +73,21 @@ def _handle_voice_commands(
     return mode
 
 
+def _check_accessibility(log: logging.Logger) -> None:
+    try:
+        x, y = pyautogui.position()
+        pyautogui.moveTo(x + 1, y + 1, _pause=False)
+        pyautogui.moveTo(x, y, _pause=False)
+        log.info("pyautogui moveTo works (Accessibility granted)")
+    except Exception as e:
+        log.error(
+            "pyautogui moveTo FAILED — grant Accessibility in "
+            "System Settings > Privacy: %s", e,
+        )
+
+
 def main() -> None:
-    configure_logging()
+    _configure_logging()
     log = logging.getLogger(__name__)
 
     signal.signal(signal.SIGINT, _signal_handler)
@@ -101,15 +115,7 @@ def main() -> None:
 
     mode = ControlMode.HAND
     log.info("Control started in %s mode. Press 'h'/'f' to switch, ESC to quit.", mode.value)
-
-    # Diagnostic: check if pyautogui can move the cursor
-    try:
-        x, y = pyautogui.position()
-        pyautogui.moveTo(x + 1, y + 1, _pause=False)
-        pyautogui.moveTo(x, y, _pause=False)
-        log.info("pyautogui moveTo works (Accessibility granted)")
-    except Exception as e:
-        log.error("pyautogui moveTo FAILED — grant Accessibility in System Settings > Privacy: %s", e)
+    _check_accessibility(log)
 
     frame_count = 0
     try:
@@ -119,7 +125,6 @@ def main() -> None:
                 log.warning("Failed to read frame, skipping")
                 continue
 
-            # Process voice commands
             commands = voice_ctrl.drain_commands()
             if commands:
                 mode = _handle_voice_commands(commands, mode, log)
@@ -140,7 +145,7 @@ def main() -> None:
                 face_tracker.draw_landmarks(frame)
                 if face_data:
                     face_controller.update(face_data)
-                    scroll_mode = face_controller._scroll_mode
+                    scroll_mode = face_controller.scroll_mode
                 elif frame_count % 60 == 0:
                     log.debug("No face detected (frame %d)", frame_count)
 
